@@ -14,6 +14,7 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.MotionEvent
+import edu.uw.animdemo.DrawingSurfaceView
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +41,9 @@ class MainActivity : AppCompatActivity() {
         val gesture = mDetector!!.onTouchEvent(event) //ask the detector to handle instead
         //if(gesture) return true; //if we don't also want to handle
 
+        var index = MotionEventCompat.getActionIndex(event)
+        var pointerId = MotionEventCompat.getPointerId(event, index)
+
         val x = event.x
         val y = event.y - supportActionBar!!.height //closer to center...
 
@@ -48,6 +52,8 @@ class MainActivity : AppCompatActivity() {
             MotionEvent.ACTION_DOWN //put finger down
             -> {
                 //Log.v(TAG, "finger down");
+
+                view!!.addTouch(pointerId, event.getX(pointerId), event.getY(pointerId));
 
                 val xAnim = ObjectAnimator.ofFloat(view!!.ball, "x", x)
                 xAnim.duration = 1000
@@ -73,7 +79,10 @@ class MainActivity : AppCompatActivity() {
             MotionEvent.ACTION_UP //lift finger up
                 , MotionEvent.ACTION_CANCEL //aborted gesture
                 , MotionEvent.ACTION_OUTSIDE //outside bounds
-            -> return super.onTouchEvent(event)
+            -> {
+                view!!.removeTouch(pointerId)
+                return super.onTouchEvent(event)
+            }
             else -> return super.onTouchEvent(event)
         }
     }
